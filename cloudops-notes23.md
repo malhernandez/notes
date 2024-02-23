@@ -35,6 +35,14 @@ Check temp:
 ```# ipmitool sdr elist | grep -i inl```
 
 
+Unsuspend user: 
+```❯ export USER_ID=3126721
+❯ for id in $USER_ID
+  do for i in ams3 fra1 nyc3 sfo2 sfo3 sgp1 syd1
+    do docker run -e ENV=production --rm docker.internal.digitalocean.com/storage/neptune /neptunectl --rpc.addr neptune.${i}.internal.digitalocean.com:443 user get --user.id $USER_ID
+  done
+done```
+
 
 ## Repaves
 
@@ -51,8 +59,13 @@ Sunset server:
 ```st2 run digitalocean.sunset_workflow hosts=nyc3node4148,nyc3node4135 tower_username="${LDAP_USERNAME}" tower_password="${LDAP_PASSWORD}" jira_ticket=OPS-34167 --async```
 
 
-If secure erase is not needed, you can remove from chef and delete from alpha:
+If secure erase is not needed, you can remove from chef and delete from alpha (data-deletion):
 
+remove from chef: 
+```st2 run digitalocean.server_chef_remove hosts=$ServerName```
+
+delete from alpha:
+```st2 run digitalocean.server_delete hosts=$ServerName```
 
 
 
@@ -111,5 +124,4 @@ Get events:
 ```kubectl --kubeconfig=kubeconfig-$CLUSTERNAME get events -n kube-system```
 
 Describe pod:
-
 ```kubectl --kubeconfig=kubeconfig-$CLUSTERNAME describe pod -n namespace  pod```
